@@ -21,6 +21,11 @@ const buttonVariants = cva(
         forgeDark: "rounded-full bg-foreground text-background shadow-none hover:bg-foreground/90",
         forgeOutline:
           "rounded-full border border-current bg-transparent text-current shadow-none hover:bg-current/10",
+        everest: "rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg transition-all active:scale-[0.98]",
+        everestAccent: "rounded-full bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg transition-all active:scale-[0.98]",
+        everestDark: "rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 hover:shadow-lg transition-all active:scale-[0.98]",
+        everestOutline: "rounded-full border border-border bg-card/60 backdrop-blur-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-all",
+        everestGlow: "rounded-full bg-primary text-primary-foreground shadow-[0_0_20px_var(--color-primary)] hover:opacity-95 transition-all active:scale-[0.98]",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,10 +78,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "FORGE Nutrition" },
-      { name: "description", content: "Premium gym nutrition for stronger training and recovery." },
-      { name: "author", content: "FORGE Nutrition" },
+      { title: "Everest Nutrition | Summit Grade Sports Supplements & Gym Fuel" },
+      {
+        name: "description",
+        content:
+          "Shop Everest Nutrition's ultra-pure whey protein isolate, micronized Creapure®, high-altitude pre-workout, and Himalayan wellness stacks.",
+      },
+      { name: "author", content: "Everest Nutrition" },
+      { property: "og:site_name", content: "Everest Nutrition" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "Everest Nutrition | Peak Human Performance" },
+      {
+        property: "og:description",
+        content: "Himalayan purity, zero fillers, lab-verified potency for athletes reaching for the peak.",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -93,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap",
       },
     ],
   }),
@@ -124,6 +135,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
