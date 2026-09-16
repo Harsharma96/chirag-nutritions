@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowRight,
   BadgeCheck,
   Check,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Dumbbell,
   Eye,
   Flame,
@@ -586,6 +588,15 @@ function Index() {
   const [isBagOpen, setIsBagOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Categories Carousel Ref & Helper
+  const categoryCarouselRef = useRef<HTMLDivElement>(null);
+  const scrollCategories = (dir: "left" | "right") => {
+    if (categoryCarouselRef.current) {
+      const scrollAmount = dir === "left" ? -240 : 240;
+      categoryCarouselRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
   // E-commerce Product Detail Modal State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedFlavour, setSelectedFlavour] = useState<string>("");
@@ -903,35 +914,67 @@ function Index() {
         </div>
       </section>
 
-      {/* Categories Filter - Square Boxes */}
-      <section id="categories" className="scroll-mt-20 py-10">
+      {/* Categories Filter - Compact Carousel on Mobile & Grid on Desktop */}
+      <section id="categories" className="scroll-mt-20 py-6 sm:py-9">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                <Sparkles className="size-3.5" />
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] sm:text-xs font-bold text-primary">
+                <Sparkles className="size-3 sm:size-3.5" />
                 <span>CATEGORIES</span>
               </div>
-              <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              <h2 className="mt-1 sm:mt-1.5 text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
                 Choose Your Goal
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-                Click any square box below to filter supplements instantly
+              <p className="mt-0.5 text-xs text-muted-foreground hidden sm:block">
+                Tap any category to filter our summit-grade formulas
               </p>
             </div>
-            {activeCategory !== "All Products" && (
-              <button
-                onClick={() => setActiveCategory("All Products")}
-                className="self-start sm:self-auto text-xs font-bold text-primary hover:text-foreground flex items-center gap-1.5 bg-clay-soft px-3.5 py-1.5 rounded-full transition-colors cursor-pointer border border-foreground/10"
-              >
-                <span>Filtered by: <strong>{activeCategory}</strong></span>
-                <span className="grid size-4 place-items-center rounded-full bg-primary text-primary-foreground text-[10px]">✕</span>
-              </button>
-            )}
+
+            {/* Controls: Filter Reset & Carousel Scroll Arrows */}
+            <div className="flex items-center gap-2">
+              {activeCategory !== "All Products" && (
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory("All Products")}
+                  className="text-xs font-bold text-primary hover:text-foreground flex items-center gap-1 bg-clay-soft px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full transition-colors cursor-pointer border border-foreground/10"
+                >
+                  <span className="text-[11px] sm:text-xs">
+                    Filtered: <strong>{activeCategory}</strong>
+                  </span>
+                  <span className="grid size-3.5 place-items-center rounded-full bg-primary text-primary-foreground text-[9px]">
+                    ✕
+                  </span>
+                </button>
+              )}
+
+              {/* Scroll Arrows */}
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => scrollCategories("left")}
+                  aria-label="Scroll left"
+                  className="grid size-7 sm:size-8 place-items-center rounded-full border border-foreground/15 bg-card text-foreground hover:bg-clay-soft transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollCategories("right")}
+                  aria-label="Scroll right"
+                  className="grid size-7 sm:size-8 place-items-center rounded-full border border-foreground/15 bg-card text-foreground hover:bg-clay-soft transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Square Boxes Grid */}
-          <div className="grid grid-cols-2 min-[440px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+          {/* Compact Carousel on Mobile / Grid on Desktop */}
+          <div
+            ref={categoryCarouselRef}
+            className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-1 px-0.5 scroll-smooth snap-x snap-mandatory hide-scrollbar sm:grid sm:grid-cols-4 lg:grid-cols-7 sm:gap-3 lg:gap-4"
+          >
             {categoriesList.map((cat) => {
               const Icon = cat.icon;
               const isActive = activeCategory === cat.name;
@@ -948,42 +991,44 @@ function Index() {
                       el.scrollIntoView({ behavior: "smooth", block: "nearest" });
                     }
                   }}
-                  className={`group relative flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer select-none aspect-square text-center shadow-xs ${
+                  className={`group relative flex shrink-0 snap-start flex-col items-center justify-between rounded-2xl border-2 transition-all duration-300 cursor-pointer select-none text-center shadow-xs ${
+                    "w-[96px] h-[108px] p-2 sm:w-auto sm:h-auto sm:aspect-square sm:p-3.5 lg:p-4"
+                  } ${
                     isActive
-                      ? "bg-foreground text-background border-foreground shadow-xl -translate-y-1 ring-4 ring-primary/25"
-                      : "bg-card text-foreground border-foreground/10 hover:border-primary/50 hover:bg-clay-soft hover:-translate-y-1 hover:shadow-md"
+                      ? "bg-foreground text-background border-foreground shadow-lg -translate-y-0.5 ring-2 sm:ring-4 ring-primary/25"
+                      : "bg-card text-foreground border-foreground/10 hover:border-primary/50 hover:bg-clay-soft hover:-translate-y-0.5 hover:shadow-md"
                   }`}
                 >
                   {/* Active Indicator Pulse */}
                   {isActive && (
-                    <span className="absolute top-2.5 right-2.5 flex size-2.5">
+                    <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex size-2">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                      <span className="relative inline-flex size-2.5 rounded-full bg-accent" />
+                      <span className="relative inline-flex size-2 rounded-full bg-accent" />
                     </span>
                   )}
 
-                  {/* Icon Container */}
+                  {/* Compact Icon Container */}
                   <div
-                    className={`grid size-11 sm:size-12 place-items-center rounded-xl transition-all duration-300 ${
+                    className={`grid size-7 sm:size-9 lg:size-10 place-items-center rounded-xl transition-all duration-300 ${
                       isActive
-                        ? "bg-accent text-accent-foreground shadow-sm scale-110"
+                        ? "bg-accent text-accent-foreground shadow-xs scale-105"
                         : "bg-clay-soft text-foreground group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105"
                     }`}
                   >
-                    <Icon className="size-5 sm:size-6" />
+                    <Icon className="size-3.5 sm:size-4.5 lg:size-5" />
                   </div>
 
                   {/* Title & Tagline */}
                   <div className="my-auto px-0.5">
                     <span
-                      className={`block font-display text-xs sm:text-sm font-extrabold tracking-tight transition-colors ${
+                      className={`block font-display text-[11px] sm:text-xs lg:text-sm font-extrabold tracking-tight leading-tight transition-colors ${
                         isActive ? "text-background" : "text-foreground"
                       }`}
                     >
                       {cat.label}
                     </span>
                     <span
-                      className={`text-[10px] hidden min-[360px]:block transition-colors ${
+                      className={`text-[9px] hidden sm:block transition-colors leading-none mt-0.5 ${
                         isActive ? "text-background/70" : "text-muted-foreground"
                       }`}
                     >
@@ -991,9 +1036,9 @@ function Index() {
                     </span>
                   </div>
 
-                  {/* Item Count Badge */}
+                  {/* Compact Count Badge */}
                   <div
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold transition-colors ${
+                    className={`rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold transition-colors leading-none ${
                       isActive
                         ? "bg-background/20 text-background"
                         : "bg-clay-soft text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
@@ -1054,68 +1099,71 @@ function Index() {
         </div>
       </section>
 
-      {/* Special Bundle Offer Banner (Above Feed) */}
-      <section id="special-offer" className="scroll-mt-20 py-8">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl bg-primary text-primary-foreground shadow-2xl ring-1 ring-foreground/10">
-            {/* Background image & gradient overlay */}
-            <div className="absolute inset-0 z-0">
-              <img
-                src={wheyImage}
-                alt="Everest complete stack"
-                className="h-full w-full object-cover opacity-20 mix-blend-overlay filter blur-[1px] scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/88 to-primary/95" />
-            </div>
+      {/* Special Bundle Offer Banner (Above Feed) - Ultra Clean & Compact */}
+      <section id="special-offer" className="scroll-mt-20 py-3 sm:py-8">
+        <div className="mx-auto max-w-6xl px-3.5 sm:px-6">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary via-primary to-[#0a261f] text-primary-foreground shadow-lg sm:shadow-2xl border border-primary/20">
+            {/* Ambient luxury glow - clean and modern without ghost watermarks */}
+            <div className="pointer-events-none absolute -right-16 -top-16 size-48 sm:size-72 rounded-full bg-accent/20 blur-3xl" />
+            <div className="pointer-events-none absolute -left-16 -bottom-16 size-48 sm:size-72 rounded-full bg-accent/10 blur-3xl" />
 
-            {/* Content Grid */}
-            <div className="relative z-10 grid gap-8 p-6 sm:p-10 md:grid-cols-[1.5fr_auto] md:items-center">
-              {/* Left Offer Details */}
-              <div className="max-w-xl">
-                <div className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-accent">
-                  <Sparkles className="size-4 text-accent" />
-                  <span>COMPLETE SUMMIT OFFER</span>
+            {/* Content Container */}
+            <div className="relative z-10 p-4 sm:p-7 md:p-8">
+              {/* Top Row: Tag & Purity Badge */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-accent border border-accent/30">
+                  <Sparkles className="size-3 sm:size-3.5 text-accent" />
+                  <span>SUMMIT BUNDLE OFFER</span>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-accent/95">
+                  <Check className="size-3 sm:size-3.5 text-accent" /> 100% Lab Tested Purity
+                </span>
+              </div>
+
+              {/* Main Info: Title & Included Items */}
+              <div className="mt-2.5 sm:mt-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-6">
+                <div>
+                  <h2 className="font-display text-lg sm:text-2xl md:text-3xl font-black tracking-tight text-white leading-tight">
+                    Everest Summit Beast Stack <span className="text-accent hidden sm:inline">· 4-in-1 Set</span>
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-white/85 leading-snug">
+                    Apex Whey (1kg) + Glacier Creatine + Altitude 8848 + Pro Shaker
+                  </p>
                 </div>
 
-                <h2 className="mt-3 font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-background leading-tight">
-                  Save 25% on the full Everest Summit set.
-                </h2>
-
-                <p className="mt-3 text-sm sm:text-base text-background/80 leading-relaxed max-w-lg">
-                  Apex Whey, Glacier Creatine, Altitude 8848 Pre-Workout and Shaker together. Add the
-                  complete training ritual to your bag.
-                </p>
-
-                <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-semibold text-background/75">
-                  <span className="flex items-center gap-1.5">
-                    <Check className="size-3.5 text-accent" /> 100% Lab Tested Purity
-                  </span>
-                  <span className="flex items-center gap-1.5">
+                {/* Desktop Extra Perks */}
+                <div className="hidden md:flex items-center gap-4 text-xs font-semibold text-white/80 shrink-0">
+                  <span className="flex items-center gap-1">
                     <Check className="size-3.5 text-accent" /> Free Express Delivery
                   </span>
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-1">
                     <Check className="size-3.5 text-accent" /> Extra 10% on UPI
                   </span>
                 </div>
               </div>
 
-              {/* Right Price & CTA Box */}
-              <div className="flex shrink-0 flex-col justify-center rounded-2xl bg-background/15 backdrop-blur-md p-6 ring-1 ring-background/25 shadow-xl min-w-[260px] sm:min-w-[280px]">
-                <div className="flex items-baseline gap-2.5">
-                  <span className="font-display text-3xl sm:text-4xl font-extrabold text-background">
-                    ₹5,499
-                  </span>
-                  <span className="text-sm font-semibold line-through text-background/55">
-                    ₹7,299
-                  </span>
+              {/* Bottom Bar: Price & CTA in a single tight, gorgeous strip */}
+              <div className="mt-3.5 sm:mt-5 pt-3 sm:pt-4 border-t border-white/15 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-2xl sm:text-3xl font-black text-white leading-none">
+                      ₹5,499
+                    </span>
+                    <span className="text-xs sm:text-sm font-semibold line-through text-white/50 leading-none">
+                      ₹7,299
+                    </span>
+                    <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] sm:text-xs font-black text-accent-foreground leading-none shadow-xs">
+                      SAVE 25%
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[10px] sm:text-xs text-white/70 font-medium truncate">
+                    Complete 4-product set · ₹1,800 savings
+                  </p>
                 </div>
-                <p className="mt-1 text-[11px] text-background/75 font-medium">
-                  Includes 4 Full-size products · ₹1,800 savings
-                </p>
 
                 <Button
                   variant="forgeAccent"
-                  size="lg"
+                  size="default"
                   onClick={() => {
                     const bundleProduct = products.find((p) => p.id === "p7") || products[0];
                     handleAddToCart(bundleProduct);
@@ -1124,10 +1172,10 @@ function Index() {
                     });
                     setIsBagOpen(true);
                   }}
-                  className="mt-4 w-full rounded-xl py-3 font-extrabold text-sm tracking-wide shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer bg-accent text-accent-foreground hover:bg-accent/90"
+                  className="shrink-0 rounded-xl px-4 py-2 sm:px-6 sm:py-2.5 font-black text-xs sm:text-sm tracking-wide shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   <ShoppingBag className="size-4" />
-                  Add full set
+                  <span>Add to Bag</span>
                 </Button>
               </div>
             </div>
